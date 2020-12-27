@@ -1,0 +1,174 @@
+import javax.swing.*;
+import java.awt.*;  
+import java.awt.event.*; 
+import java.util.*;
+import java.io.*;
+import java.awt.MenuBar;
+import java.text.*;
+class WordEditor implements ActionListener,Runnable
+{
+  JFrame f;
+  JMenuBar mb;
+  JMenu file,edit;
+  JMenuItem nw,save,open,cut,copy,paste,selectAll;
+  JTextArea area;
+  JTextField tf;
+  JButton b;
+  Thread t=null;  
+  int hours=0, minutes=0, seconds=0;  
+  String timeString = "";  
+  public WordEditor()
+  {
+      f=new JFrame("Text Editor");
+      mb=new JMenuBar();
+      //File
+      file=new JMenu("File");
+      nw=new JMenuItem("New");
+      save=new JMenuItem("Save");
+      open=new JMenuItem("Open");
+      file.add(nw);file.add(save);file.add(open);
+      mb.add(file);
+      save.addActionListener(this);
+      nw.addActionListener(this);
+      open.addActionListener(this);
+      //Edit
+      edit=new JMenu("Edit");
+      cut=new JMenuItem("Cut");
+      copy=new JMenuItem("Copy");
+      paste=new JMenuItem("Paste");
+      selectAll=new JMenuItem("Select All");
+      edit.add(cut);edit.add(copy);edit.add(paste);edit.add(selectAll);
+      mb.add(edit);
+      paste.addActionListener(this);
+      cut.addActionListener(this);
+      copy.addActionListener(this);
+      selectAll.addActionListener(this);
+      //Text Area
+      area=new JTextArea("\n");
+      area.setBounds(100,100,1000,600);
+      //Text Field
+      tf=new JTextField("Type the name");
+      tf.setBounds(400,10,200,20);
+      //Button for date and time
+      t = new Thread(this);  
+      t.start();  
+      b=new JButton();  
+      b.setBounds(10,10,300,50);  
+      //Scroll Bar
+      final JScrollBar sb=new JScrollBar();  
+      sb.setBounds(1150,100,45,400);  
+      
+      f.add(sb); 
+      f.add(b);        
+      area.setFont(new Font("Monaco", Font.PLAIN, 20));
+      f.setJMenuBar(mb);
+      f.add(tf);
+      f.add(area);
+      f.setSize(1200,800);
+      f.setLayout(null);
+      f.setVisible(true);
+  }
+  public void actionPerformed(ActionEvent e) 
+  {
+      if(e.getSource()==save)
+      {
+       String text=area.getText();
+       String name=tf.getText();
+       try
+       {
+        BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+        FileWriter fw=new FileWriter(name); 
+        BufferedWriter bw=new BufferedWriter(fw);
+        PrintWriter fout=new PrintWriter(bw);
+        fout.println(text);
+        fout.close();       
+       }
+       catch (Exception IOException)
+       {
+       }
+      }
+      if(e.getSource()==nw)
+      {
+        f.setVisible(false);
+        f=new JFrame();
+        JMenuBar mb=new JMenuBar();
+        file=new JMenu();
+        nw=new JMenuItem("New");
+        save=new JMenuItem("Save");
+        open=new JMenuItem("Open");
+        file.add(nw);file.add(save);file.add(open);
+        mb.add(file);
+        f.setJMenuBar(mb);
+        f.setSize(1200,800);
+        area=new JTextArea();
+        area.setBounds(100,100,1000,600);
+        save.addActionListener(this);
+        nw.addActionListener(this);
+        open.addActionListener(this);
+        tf=new JTextField("Type the name");
+        tf.setBounds(200,10,200,80);
+        f.add(tf);
+        f.add(area);
+        f.setLayout(null);
+        f.setVisible(true);
+      }
+      if(e.getSource()==open)
+      {
+          try
+          {
+           FileReader fr=new FileReader(tf.getText());
+           BufferedReader fin=new BufferedReader(fr);
+           String txt="";
+           int i;
+           while((i=fr.read())!=-1) 
+           {
+               txt=txt+(char)i;
+           }
+           area.setText(txt);
+          }
+          catch(Exception IOException)
+          {}
+      } 
+      if(e.getSource()==cut)    
+       area.cut();    
+      if(e.getSource()==paste)    
+       area.paste();    
+      if(e.getSource()==copy)    
+       area.copy();    
+      if(e.getSource()==selectAll)    
+       area.selectAll();  
+  }
+  public void run()
+  {  
+       try
+       {  
+            while (true)
+            {  
+  
+              Calendar cal = Calendar.getInstance();  
+              hours = cal.get( Calendar.HOUR_OF_DAY );  
+              if ( hours > 12 )
+                hours -= 12;  
+              minutes = cal.get( Calendar.MINUTE );  
+              seconds = cal.get( Calendar.SECOND );  
+  
+              SimpleDateFormat formatter = new SimpleDateFormat("hh:mm:ss");  
+              Date date = cal.getTime();  
+              timeString = formatter.format( date );  
+  
+              printTime();  
+  
+              t.sleep( 1000 );  // interval given in milliseconds  
+         }  
+      }  
+      catch (Exception e) { }  
+  }  
+  public void printTime()
+  {  
+      b.setText(timeString);  
+  }  
+  public static void main()throws IOException
+  {
+      new WordEditor();
+  }
+}
